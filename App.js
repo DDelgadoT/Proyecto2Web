@@ -1,20 +1,30 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import Populares from "./components/Populares/Populares";
+import Nacionales from "./components/Nacionales/Nacionales";
+import Internacionales from "./components/Internacionales/Internacionales";
+import RegistroBeca from "./components/RegistroBeca/RegistroBeca";
+import Detalles from './components/Detalles/Detalles';
 
-export default function App() {
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: true,
+        }}
+      >
+        <Stack.Screen name="Populares" component={ Populares } />
+        <Stack.Screen name="Internacionales" component={ Internacionales } />
+        <Stack.Screen name="Nacionales" component={ Nacionales } />
+        <Stack.Screen name="RegistroBeca" component={ RegistroBeca } />
+        <Stack.Screen name="Detalles" component={ Detalles } />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
