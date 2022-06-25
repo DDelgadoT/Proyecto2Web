@@ -1,6 +1,6 @@
 import { API_URL } from '../url';
 
-let token = sessionStorage.getItem('token');
+let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTYxNzM0MjMsImlhdCI6MTY1NjA4NzAyMywiaXNzIjoiRUxBRE1JTiJ9.if3G2PgodP8hxh5cwWN9JdBsUlwdzUT-bpALd1hyqzk";
 
 export default function putBeca(cuerpo, id){
     const requestOptions = {

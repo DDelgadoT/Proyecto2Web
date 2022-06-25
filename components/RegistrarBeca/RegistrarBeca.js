@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm, Controller } from "react-hook-form";
-import { Text, View, Button, StyleSheet } from "react-native";
-import { TextInput } from 'react-native-paper';
+import { View, StyleSheet, Text } from "react-native";
+import { TextInput, Button } from 'react-native-paper';
 import postBeca from './postBeca';
 
 

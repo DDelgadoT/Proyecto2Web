@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
+import { View, StyleSheet, Text } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
+import { useForm, Controller } from "react-hook-form";
 import putBeca from './putBeca';
 import obtenerDetalles from '../Detalles/obtenerDetalles';
-import Cabecera from '../Navbar/Navbar';
+import { useNavigation } from '@react-navigation/native';
 
-let id = window.location.href;
-id = id.replace("http://localhost:3000/editar/",'');
 
-function handleSubmit(event) {
-    event.preventDefault()
+function actualizar(data, id) {
 
-    let arrayRequisitos = event.target.elements.formRequisitos.value.split(".");
+    /*let arrayRequisitos = event.target.elements.formRequisitos.value.split(".");
     arrayRequisitos.pop();
 
     let requisitos = []
@@ -22,102 +21,155 @@ function handleSubmit(event) {
         }
         requisitoTemporal["descripcion"] = element;
         requisitos.push(requisitoTemporal);
-    })
+    })*/
 
     let body = {
-        nombre: event.target.elements.formNombreBeca.value,
-        categoria: event.target.elements.formCategoria.value,
-        porcentajeF: parseInt(event.target.elements.formPorcentaje.value),
-        pais: event.target.elements.formPais.value,
-        universidad: event.target.elements.formUniversidad.value,
-        requisitos: requisitos
+        nombre: data.nombre,
+        categoria: data.categoria,
+        porcentajeF: parseInt(data.porcentajeF),
+        pais: data.pais,
+        universidad: data.universidad,
     }
 
     putBeca(body, id);
     
 }
 
-function EditarBeca() {
+function EditarBeca({ route, navigation }) {
+
+    const id = route.params.itemId;
+    const navigate = useNavigation();
 
     const [detalles, setDetalles] = useState({});
 
     useEffect(() => {
-        obtenerDetalles(id).then(setDetalles)
+        obtenerDetalles(id).then(setDetalles);
     }, {});
 
-    if(sessionStorage.getItem("token") != null){
+    const fecha = new Date();
+    let año = fecha.getFullYear();
+    let mes = fecha.toLocaleString("es-US", {month: "long"});
+    let dia = fecha.toLocaleString("en-US", {day: "2-digit"});
+    let fechaPublicacion = dia + "/" + mes + "/" + año;
 
-        const fecha = new Date();
-        let año = fecha.getFullYear();
-        let mes = fecha.toLocaleString("es-US", {month: "long"});
-        let dia = fecha.toLocaleString("en-US", {day: "2-digit"});
-        let fechaPublicacion = dia + "/" + mes + "/" + año;
-
-        let valueSelect;
-        if(detalles.categoria === "Nacional"){
-            valueSelect = "Nacional";
-        }else{
-            valueSelect = "Internacional";
-        }
-
-        console.log(valueSelect);
-
-        let requisitos = [];
-        if (detalles.requisitos !== undefined){
-            detalles.requisitos.forEach(element => {
-                requisitos.push(element.descripcion)
-            });
-        }
-        requisitos = requisitos.join(". ");
-
-        return (
-            <>
-            <Cabecera />
-                <div className="App">
-                    <h1 className="title">Edición de beca</h1>
-                </div>
-                <Container fluid border="dark" className="border border-dark div">      
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3" controlId="formFecha">
-                            <Form.Label>Fecha de actualización</Form.Label>
-                            <Form.Control type="text" placeholder={fechaPublicacion} readOnly /> 
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formNombreBeca">
-                            <Form.Label>Nombre de la beca</Form.Label>
-                            <Form.Control type="text" defaultValue={detalles.nombre} />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formCategoria">
-                            <Form.Label>Categoría:</Form.Label>
-                            <Form.Select aria-label="Default select example" value={valueSelect}>
-                                <option value="Nacional">Nacional</option>
-                                <option value="Internacional">Internacional</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formPorcentaje">
-                            <Form.Label>Porcentaje de financiación:</Form.Label>
-                            <Form.Control type="number" min="0" max="100" defaultValue={detalles.porcentajeF} />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formPais">
-                            <Form.Label>Pais que ofrece la beca:</Form.Label>
-                            <Form.Control type="text" defaultValue={detalles.pais} />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formUniversidad">
-                            <Form.Label>Universidad que ofrece la beca:</Form.Label>
-                            <Form.Control type="text" defaultValue={detalles.universidad} />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="formRequisitos">
-                            <Form.Label>Requisitos: <b>(Separe los requisitos por puntos)</b></Form.Label>
-                            <Form.Control as="textarea" rows={3} defaultValue={requisitos}/>
-                        </Form.Group>
-                        <Button variant="primary" type="submit">Actualizar</Button>
-                    </Form>
-                </Container>
-            </>
-        );
-    }else{
-        alert("Debes ingresar");
-        window.location.replace("/");
+    let requisitos = [];
+    if (detalles.requisitos !== undefined){
+        detalles.requisitos.forEach(element => {
+            requisitos.push(element.descripcion)
+        });
     }
+    requisitos = requisitos.join(". ");
+
+    const { control, handleSubmit, formState: { errors }, reset } = useForm({});
+    const onSubmit = data => actualizar(data, id);
+
+    useEffect(() => {
+        reset(detalles);
+    }, [detalles]);
+
+    return (
+
+        <View>
+        <Controller
+            control={control}
+            rules={{
+                required: true,
+            }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                    label="Nombre"
+                    style={styles.input}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Ingrese el nombre de la beca"
+                />
+            )}
+            name="nombre"
+        />
+        {errors.nombre && <Text style={styles.italic}>Esto es requerido.</Text>}
+        <Controller
+            control={control}
+            rules={{
+                required: true,
+                maxLength: 100,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                    label="Categoria (Nacional o Internacional)"
+                    style={styles.input}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Ingrese la categoria"
+                />
+            )}
+            name="categoria"
+        />
+        {errors.categoria && <Text style={styles.italic}>Esto es requerido.</Text>}
+        <Controller
+            control={control}
+            rules={{
+                required: true,
+                maxLength: 100,
+            }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                    label="Porcentaje de financiación"
+                    style={styles.input}
+                    onChangeText={onChange}
+                    value={String(value)}
+                    keyboardType="numeric"
+                    placeholder="Ingrese el número de porcentaje"
+                />
+            )}
+            name="porcentajeF"
+        />
+        {errors.porcentaje && <Text style={styles.italic}>Esto es requerido.</Text>}
+        <Controller
+            control={control}
+            rules={{
+                required: true,
+                maxLength: 100,
+            }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                    label="Pais que ofrece la beca"
+                    style={styles.input}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Ingrese el nombre del país"
+                />
+            )}
+            name="pais"
+        />
+        {errors.pais && <Text style={styles.italic}>Esto es requerido.</Text>}
+        <Controller
+            control={control}
+            rules={{
+                required: true,
+                maxLength: 100,
+            }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                    label="Universidad que ofrece la beca"
+                    style={styles.input}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Ingrese el nombre de la universidad"
+                />
+            )}
+            name="universidad"
+        />
+
+        <Button icon="update" style={styles.botonActualizar} mode="contained" onPress={handleSubmit(onSubmit)}>Actualizar beca</Button>
+        </View>
+    );
 }
+
+const styles = StyleSheet.create({
+    botonActualizar: {
+        backgroundColor: "blue",
+        textColor: 'white',
+    }
+})
 
 export default EditarBeca;

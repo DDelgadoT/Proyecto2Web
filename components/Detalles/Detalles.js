@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Button, StyleSheet, Text, Alert } from 'react-native';
-import { Card, Title, Paragraph } from 'react-native-paper';
+import { View, StyleSheet, Text, Alert } from 'react-native';
+import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import obtenerDetalles from './obtenerDetalles';
 import { API_URL } from '../url'
 import { useNavigation } from '@react-navigation/native';
@@ -94,7 +94,8 @@ function Detalles({ route, navigation }){
                     <Paragraph>{requisitosLista}</Paragraph>
                 </Card.Content>
                 <Card.Actions>
-                    <Button title="Eliminar" onPress={() => eliminar(id, navigate)}></Button>
+                    <Button icon="update" style={styles.botonActualizar} mode="contained" onPress={() => navigate.navigate("Editar", {itemId: id})}>Actualizar</Button>
+                    <Button icon="delete" style={styles.botonEliminar} mode="contained" onPress={() => eliminar(id, navigate)}>Eliminar</Button>
                 </Card.Actions>
             </Card>
         </>
@@ -114,6 +115,14 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginBottom: 25,
     },
+    botonEliminar: {
+        backgroundColor: "#fa0000",
+        textColor: 'white',
+    },
+    botonActualizar: {
+        backgroundColor: "blue",
+        textColor: 'white',
+    }
 })
 
 export default Detalles;
